@@ -9,4 +9,5 @@
     
 
 预览地址：[在线使用]https://bimbaloo.github.io/vue-todomvc/show.html
+项目地址：[完整构建地址]https://github.com/Bimbaloo/todomvc
 
