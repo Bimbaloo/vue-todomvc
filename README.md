@@ -8,5 +8,5 @@
     npm i ---安装依赖
     
 
-预览地址：[在线使用]www://skaidnol.com
-源码地址：[源码地址]www://skaidnol.com
+预览地址：[在线使用]https://bimbaloo.github.io/vue-todomvc/show.html
+
