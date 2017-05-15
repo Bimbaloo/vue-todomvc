@@ -5,61 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>我的todoMVC</title>
     <link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+
 </head>
 <body>
-<section class="todoapp">
-    <header class="header">
-        <h1>{{title}}</h1>
-        <input class="new-todo" placeholder="What needs to be done?" autofocus v-model.trim="newTodo" @keyup.enter="addTodo">
-    </header>
-    <!-- This section should be hidden by default and shown when there are todos -->
-    <section class="main">
-        <input class="toggle-all" type="checkbox" v-model="isAll">
-        <label for="toggle-all">Mark all as complete</label>
-        <ul class="todo-list">
-            <li v-for="(todo,index) in filteredTodos" :class="{completed:todo.completed,editing:todo == editedTodo}" >
-                <div class="view">
-                    <input class="toggle" type="checkbox" v-model="todo.completed">
-                    <label @dblclick="editTodo(todo)">{{todo.content}}</label>
-                    <button class="destroy" @click="removeTodo(index)"></button>
+
+<div id="app">
+
+
+    <section id="signInAndSignUp" v-if="!currentUser">
+        <div class="login-wrap" style="margin-top: 100px">
+            <div class="login-html">
+                <input id="tab-1" type="radio" v-model="actionType" name="tab" value="signUp" class="sign-in" checked><label for="tab-1" class="tab">Sign In</label>
+                <input id="tab-2" type="radio" v-model="actionType" name="tab" value="login" class="sign-up"><label for="tab-2" class="tab">Sign Up</label>
+
+
+                <div class="signUp" v-if="actionType === 'signUp'">
+                    <form @submit.prevent="signUp" class="login-form">
+                        <div class="sign-in-htm">
+
+                            <div class="group">
+                                <label for="user" class="label">用户名</label>
+                                <input v-model="formData.username" type="text" class="input" id="user">
+                            </div>
+                            <div class="group">
+                                <label for="pass" class="label">密码</label>
+                                <input v-model="formData.password" type="password" class="input" id="pass">
+                            </div>
+                            <div class="group">
+                                <input type="submit" class="button" value="注册">
+                            </div>
+                        </div>
+                    </form>
+
                 </div>
-                <input class="edit" v-model.trim="todo.content"
-                       v-focus="todo == editedTodo"
-                       @blur="doneEdit(todo,index)"
-                       @keyup.esc="cancleEdit(todo)"
-                       @keyup.enter="doneEdit(todo,index)"
-                >
-            </li>
-        </ul>
+                <div class="login" v-if="actionType === 'login'">
+                    <!--<form @submit.prevent="login" class="login-form">
+                        <div class="formRow">
+                            用户名<input v-model="formData.username" type="text">
+                        </div>
+                        <div class="formRow">
+                            密码<input v-model="formData.password" type="password">
+                        </div>
+                        <div class="formActions">
+                            <input type="submit" value="登入">
+                        </div>
+                    </form>-->
+                    <form @submit.prevent="login" class="login-form">
+                        <div class="sign-in-htm">
+
+                            <div class="group">
+                                <label for="user" class="label">用户名</label>
+                                <input v-model="formData.username" type="text" class="input" id="user">
+                            </div>
+                            <div class="group">
+                                <label for="pass" class="label">密码</label>
+                                <input v-model="formData.password" type="password" class="input" id="pass">
+                            </div>
+                            <div class="group">
+                                <input type="submit" class="button" value="登入">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!--                <div>
+                                    <label><input type="radio" v-model="actionType" name="type" value="signUp">注册</label>
+                                    <label><input type="radio" v-model="actionType" name="type" value="login">登入</label>
+                                </div>-->
+            </div>
+        </div>
     </section>
-    <!-- This footer should hidden by default and shown when there are todos -->
-    <footer class="footer" v-show="todos.length">
-        <!-- This should be `0 items left` by default -->
-        <span class="todo-count"><strong>{{remain}}</strong> {{todos.length > 1?'items':'item'}} left</span>
-        <!-- Remove this if you don't implement routing -->
-        <ul class="filters">
-            <li>
-                <a :class="{selected:hashName=='all'}" href="#/">All</a>
-            </li>
-            <li>
-                <a :class="{selected:hashName=='active'}" href="#/active">Active</a>
-            </li>
-            <li>
-                <a :class="{selected:hashName=='completed'}" href="#/completed">Completed</a>
-            </li>
-        </ul>
-        <!-- Hidden if no completed items are left ↓ -->
-        <button class="clear-completed" @click="clear">Clear completed</button>
+
+
+    <section class="todoapp" v-if="currentUser">
+        <p>
+            <button @click="logout">退出</button>
+        </p>
+        <header class="header">
+            <h1>{{title}}</h1>
+            <input class="new-todo" placeholder="What needs to be done?" autofocus v-model.trim="newTodo"
+                   @keyup.enter="addTodo">
+        </header>
+        <!-- This section should be hidden by default and shown when there are todos -->
+        <section class="main">
+            <input class="toggle-all" type="checkbox" v-model="isAll">
+            <label for="toggle-all">Mark all as complete</label>
+            <ul class="todo-list">
+                <li v-for="(todo,index) in filteredTodos"
+                    :class="{completed:todo.completed,editing:todo == editedTodo}">
+                    <div class="view">
+                        <input class="toggle" type="checkbox" v-model="todo.completed">
+                        <label @dblclick="editTodo(todo)">{{todo.content}}</label>
+                        <button class="destroy" @click="removeTodo(index)"></button>
+                    </div>
+                    <input class="edit" v-model.trim="todo.content"
+                           v-focus="todo == editedTodo"
+                           @blur="doneEdit(todo,index)"
+                           @keyup.esc="cancleEdit(todo)"
+                           @keyup.enter="doneEdit(todo,index)"
+                    >
+                </li>
+            </ul>
+        </section>
+        <!-- This footer should hidden by default and shown when there are todos -->
+        <footer class="footer" v-show="todos.length">
+            <!-- This should be `0 items left` by default -->
+            <span class="todo-count"><strong>{{remain}}</strong> {{todos.length > 1?'items':'item'}} left</span>
+            <!-- Remove this if you don't implement routing -->
+            <ul class="filters">
+                <li>
+                    <a :class="{selected:hashName=='all'}" href="#/">All</a>
+                </li>
+                <li>
+                    <a :class="{selected:hashName=='active'}" href="#/active">Active</a>
+                </li>
+                <li>
+                    <a :class="{selected:hashName=='completed'}" href="#/completed">Completed</a>
+                </li>
+            </ul>
+            <!-- Hidden if no completed items are left ↓ -->
+            <button class="clear-completed" @click="clear">Clear completed</button>
+        </footer>
+    </section>
+    <footer class="info">
+        <p>Double-click to edit a todo</p>
+        <!-- Remove the below line ↓ -->
+        <p>Template by <a href="http://sindresorhus.com">Sindre Sorhus</a></p>
+        <!-- Change this out with your name and url ↓ -->
+        <p>Created by <a href="http://todomvc.com">you</a></p>
+        <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
     </footer>
-</section>
-<footer class="info">
-    <p>Double-click to edit a todo</p>
-    <!-- Remove the below line ↓ -->
-    <p>Template by <a href="http://sindresorhus.com">Sindre Sorhus</a></p>
-    <!-- Change this out with your name and url ↓ -->
-    <p>Created by <a href="http://todomvc.com">you</a></p>
-    <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
-</footer>
+</div>
 <script src="base.js"></script>
 </body>
 </html>
