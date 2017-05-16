@@ -88,7 +88,7 @@
         </header>
         <!-- This section should be hidden by default and shown when there are todos -->
         <section class="main">
-            <input class="toggle-all" type="checkbox" v-model="isAll">
+            <input class="toggle-all" type="checkbox" v-model="isAll" id="toggle-all">
             <label for="toggle-all">Mark all as complete</label>
             <ul class="todo-list">
                 <li v-for="(todo,index) in filteredTodos"
